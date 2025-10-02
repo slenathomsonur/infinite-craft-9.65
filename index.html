@@ -1,0 +1,1839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinite Craft | Enhanced</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tagline {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .header-controls {
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-btn {
+            background: rgba(255, 126, 95, 0.3);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .header-btn:hover {
+            background: rgba(255, 126, 95, 0.5);
+        }
+
+        .main-content {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .player-section {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-section {
+            flex: 3;
+            min-width: 800px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #ff7e5f;
+            border-bottom: 2px solid #ff7e5f;
+            padding-bottom: 5px;
+        }
+
+        .player-info {
+            background: rgba(255, 126, 95, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .elements-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+        }
+
+        .element {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            padding: 15px 10px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: grab;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            user-select: none;
+            position: relative;
+        }
+
+        .element:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .element:active {
+            cursor: grabbing;
+        }
+
+        .element.view-only {
+            cursor: pointer;
+        }
+
+        .element.view-only:hover {
+            transform: scale(1.05);
+        }
+
+        .element.clickable {
+            cursor: pointer;
+        }
+
+        .element.clickable:hover {
+            transform: scale(1.05);
+            background: linear-gradient(135deg, #2575fc 0%, #6a11cb 100%);
+        }
+
+        .rarity-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: gold;
+            color: black;
+            font-size: 0.7rem;
+            padding: 2px 5px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .common { background: #6a11cb; }
+        .uncommon { background: #2575fc; }
+        .rare { background: #ff7e5f; }
+        .epic { background: #b21f1f; }
+        .legendary { background: #fdbb2d; color: black; }
+        .mythical { background: linear-gradient(45deg, #ff00cc, #3333ff); }
+
+        .discovery-area {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .discovery-box {
+            flex: 1;
+            min-width: 250px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .combine-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .drop-zone {
+            width: 100px;
+            height: 100px;
+            border: 3px dashed #ff7e5f;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            color: #ff7e5f;
+            position: relative;
+        }
+
+        .drop-zone .clear-btn {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: rgba(255, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .drop-zone.has-element .clear-btn {
+            display: block;
+        }
+
+        .combine-btn {
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .combine-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .combine-btn:active {
+            transform: translateY(0);
+        }
+
+        .result-area {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 126, 95, 0.2);
+            border-radius: 10px;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .new-element {
+            font-size: 1.5rem;
+            color: #ff7e5f;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .message {
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        .error {
+            background: rgba(255, 0, 0, 0.3);
+            border: 1px solid red;
+        }
+
+        .success {
+            background: rgba(0, 255, 0, 0.3);
+            border: 1px solid green;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ff7e5f;
+        }
+
+        .player-actions {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        button {
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            width: 100%;
+        }
+
+        /* New Features Styling */
+        .achievements-section {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-top: 20px;
+        }
+
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .achievement {
+            background: rgba(255, 126, 95, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .achievement.locked {
+            opacity: 0.5;
+        }
+
+        .achievement-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .daily-challenge {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-top: 20px;
+        }
+
+        .challenge-progress {
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .element-history {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-top: 20px;
+        }
+
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .history-item {
+            padding: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .special-effects {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .welcome-message {
+            text-align: center;
+            padding: 10px;
+            background: rgba(255, 126, 95, 0.2);
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* Recipe Book Styles */
+        .recipe-book {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-top: 20px;
+        }
+
+        .recipe-search {
+            margin-bottom: 15px;
+        }
+
+        .recipe-search input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+
+        .recipe-categories {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            background: rgba(255, 126, 95, 0.3);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .category-btn.active {
+            background: rgba(255, 126, 95, 0.7);
+        }
+
+        .recipe-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .recipe-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .recipe-item:hover {
+            background: rgba(255, 126, 95, 0.2);
+        }
+
+        .recipe-details {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .recipe-components {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .recipe-component {
+            background: rgba(255, 126, 95, 0.3);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        /* Element Info Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: rgba(0, 0, 0, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: auto;
+        }
+
+        .element-info {
+            text-align: center;
+        }
+
+        .element-info-name {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #ff7e5f;
+        }
+
+        .element-info-rarity {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            margin-bottom: 15px;
+        }
+
+        .element-info-description {
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .element-info-recipe {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        /* Quick Craft Section */
+        .quick-craft {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-top: 20px;
+        }
+
+        .quick-craft-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .quick-craft-item {
+            background: rgba(255, 126, 95, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .quick-craft-item:hover {
+            background: rgba(255, 126, 95, 0.4);
+            transform: translateY(-3px);
+        }
+
+        .quick-craft-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .quick-craft-item.disabled:hover {
+            transform: none;
+            background: rgba(255, 126, 95, 0.2);
+        }
+
+        .complex-recipe {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .recipe-step {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .game-section, .player-section {
+                min-width: 100%;
+            }
+            
+            .header-controls {
+                position: static;
+                margin-top: 15px;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Infinite Craft</h1>
+            <p class="tagline">Combine elements to create the universe! No sign-up required.</p>
+            <div class="header-controls">
+                <button class="header-btn" id="export-btn">Export Data</button>
+                <button class="header-btn" id="reset-btn">Reset Progress</button>
+                <button class="header-btn" id="recipe-book-btn">Recipe Book</button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <section class="player-section">
+                <h2 class="section-title">Player Progress</h2>
+                
+                <div class="welcome-message">
+                    <p>Welcome to Infinite Craft! Start combining elements right away.</p>
+                </div>
+                
+                <div class="player-info">
+                    <h3>Your Progress</h3>
+                    <p>Level: <span id="user-level">1</span></p>
+                    <p>XP: <span id="user-xp">0</span>/<span id="next-level-xp">100</span></p>
+                    <p>Elements Discovered: <span id="elements-count">7</span></p>
+                    <p>Combinations Made: <span id="combinations-count">0</span></p>
+                    <p>Score: <span id="user-score">0</span></p>
+                    
+                    <div class="player-actions">
+                        <button id="save-btn">Save Progress</button>
+                        <button id="load-btn">Load Progress</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="game-section">
+                <h2 class="section-title">Infinite Craft</h2>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="total-elements">50</div>
+                        <div>Total Elements</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="user-elements">7</div>
+                        <div>Your Elements</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="combinations">0</div>
+                        <div>Combinations</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="session-score">0</div>
+                        <div>Session Score</div>
+                    </div>
+                </div>
+                
+                <div class="discovery-area">
+                    <div class="discovery-box">
+                        <h3 class="section-title">Your Elements (Drag or Click)</h3>
+                        <div class="elements-container" id="user-elements-container">
+                            <!-- Elements will be added here dynamically -->
+                        </div>
+                    </div>
+                    
+                    <div class="discovery-box">
+                        <h3 class="section-title">All Elements (Click to View Recipes)</h3>
+                        <div class="elements-container" id="all-elements-container">
+                            <!-- Elements will be added here dynamically -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="combine-area">
+                    <div class="drop-zone" id="drop-zone-1">
+                        +
+                        <button class="clear-btn">X</button>
+                    </div>
+                    <div class="drop-zone" id="drop-zone-2">
+                        +
+                        <button class="clear-btn">X</button>
+                    </div>
+                    <button class="combine-btn" id="combine-btn">Combine!</button>
+                </div>
+                
+                <div class="result-area">
+                    <h3>Combination Result</h3>
+                    <div id="result-message">Drag two elements to the boxes above and click Combine!</div>
+                    <div id="new-element" class="new-element"></div>
+                </div>
+            </section>
+        </div>
+        
+        <!-- New Features Sections -->
+        <section class="quick-craft">
+            <h2 class="section-title">Quick Craft</h2>
+            <p>Click on any recipe below to automatically add the required elements to your crafting area. More complex recipes unlock as you discover more elements!</p>
+            <div class="quick-craft-grid" id="quick-craft-container">
+                <!-- Quick craft items will be added here dynamically -->
+            </div>
+        </section>
+        
+        <section class="recipe-book" id="recipe-book" style="display: none;">
+            <h2 class="section-title">Recipe Book</h2>
+            
+            <div class="recipe-search">
+                <input type="text" id="recipe-search" placeholder="Search for elements...">
+            </div>
+            
+            <div class="recipe-categories">
+                <button class="category-btn active" data-category="all">All</button>
+                <button class="category-btn" data-category="common">Common</button>
+                <button class="category-btn" data-category="uncommon">Uncommon</button>
+                <button class="category-btn" data-category="rare">Rare</button>
+                <button class="category-btn" data-category="epic">Epic</button>
+                <button class="category-btn" data-category="legendary">Legendary</button>
+                <button class="category-btn" data-category="mythical">Mythical</button>
+            </div>
+            
+            <div class="recipe-list" id="recipe-list">
+                <!-- Recipes will be added here dynamically -->
+            </div>
+        </section>
+        
+        <section class="achievements-section">
+            <h2 class="section-title">Achievements</h2>
+            <div class="achievements-grid" id="achievements-container">
+                <!-- Achievements will be added here dynamically -->
+            </div>
+        </section>
+        
+        <section class="daily-challenge">
+            <h2 class="section-title">Daily Challenge</h2>
+            <div id="challenge-description">Combine Fire and Water to create Steam</div>
+            <div class="challenge-progress">
+                <div class="progress-bar" id="challenge-progress" style="width: 0%"></div>
+            </div>
+            <div id="challenge-reward">Reward: 50 XP</div>
+        </section>
+        
+        <section class="element-history">
+            <h2 class="section-title">Recent Discoveries</h2>
+            <div class="history-list" id="history-container">
+                <!-- History items will be added here dynamically -->
+            </div>
+        </section>
+        
+        <footer>
+            <p>&copy; 2025 Dem Studios. All rights reserved.</p>
+        </footer>
+    </div>
+
+    <!-- Element Info Modal -->
+    <div class="modal" id="element-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Element Information</h2>
+                <button class="close-modal" id="close-modal">&times;</button>
+            </div>
+            <div class="element-info" id="element-info">
+                <!-- Element info will be added here dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game data with rarity information and descriptions
+        const baseElements = [
+            { name: 'Earth', rarity: 'common', description: 'The solid ground beneath our feet' },
+            { name: 'Fire', rarity: 'common', description: 'The element of heat and energy' },
+            { name: 'Water', rarity: 'common', description: 'The source of all life' },
+            { name: 'Wind', rarity: 'common', description: 'The invisible force that moves the air' },
+            { name: 'Life', rarity: 'uncommon', description: 'The essence of living beings' },
+            { name: 'Energy', rarity: 'uncommon', description: 'Pure potential and power' },
+            { name: 'Dog', rarity: 'rare', description: 'Mans best friend' },
+            { name: 'Parrot', rarity: 'rare', description: 'A colorful talking bird' }
+        ];
+
+        const combinations = {
+            'Earth+Fire': { name: 'Lava', rarity: 'uncommon', description: 'Molten rock from deep within the earth' },
+            'Earth+Water': { name: 'Mud', rarity: 'common', description: 'Wet earth that sticks to everything' },
+            'Earth+Wind': { name: 'Dust', rarity: 'common', description: 'Fine particles carried by the wind' },
+            'Fire+Water': { name: 'Steam', rarity: 'common', description: 'Water vapor created by heat' },
+            'Fire+Wind': { name: 'Smoke', rarity: 'common', description: 'The visible result of combustion' },
+            'Water+Wind': { name: 'Wave', rarity: 'common', description: 'The motion of water across the surface' },
+            'Life+Earth': { name: 'Plant', rarity: 'uncommon', description: 'Living organisms that grow in soil' },
+            'Life+Water': { name: 'Algae', rarity: 'uncommon', description: 'Simple aquatic organisms' },
+            'Life+Fire': { name: 'Phoenix', rarity: 'epic', description: 'A mythical bird that rises from ashes' },
+            'Life+Wind': { name: 'Butterfly', rarity: 'rare', description: 'A beautiful insect that flies with the wind' },
+            'Energy+Earth': { name: 'Earthquake', rarity: 'rare', description: 'The shaking of the ground caused by energy release' },
+            'Energy+Fire': { name: 'Plasma', rarity: 'rare', description: 'The fourth state of matter, superheated gas' },
+            'Energy+Water': { name: 'Electric Eel', rarity: 'rare', description: 'A creature that generates electricity' },
+            'Energy+Wind': { name: 'Storm', rarity: 'uncommon', description: 'Atmospheric disturbance with wind and energy' },
+            'Dog+Earth': { name: 'Burrow', rarity: 'uncommon', description: 'A hole dug by an animal for shelter' },
+            'Dog+Water': { name: 'Swimming Dog', rarity: 'rare', description: 'A canine that enjoys the water' },
+            'Dog+Fire': { name: 'Hot Dog', rarity: 'epic', description: 'A delicious cooked sausage' },
+            'Dog+Wind': { name: 'Flying Dog', rarity: 'legendary', description: 'A mythical canine that soars through the air' },
+            'Parrot+Earth': { name: 'Ground Parrot', rarity: 'uncommon', description: 'A parrot that prefers walking to flying' },
+            'Parrot+Water': { name: 'Pirate Parrot', rarity: 'rare', description: 'A seafaring bird with an eye patch' },
+            'Parrot+Fire': { name: 'Phoenix Parrot', rarity: 'epic', description: 'A fiery bird with colorful plumage' },
+            'Parrot+Wind': { name: 'Flying Parrot', rarity: 'common', description: 'A parrot soaring through the sky' },
+            'Lava+Water': { name: 'Stone', rarity: 'common', description: 'Solidified molten rock' },
+            'Lava+Wind': { name: 'Obsidian', rarity: 'rare', description: 'Volcanic glass formed by rapid cooling' },
+            'Plant+Water': { name: 'Swamp', rarity: 'uncommon', description: 'A wetland ecosystem' },
+            'Plant+Fire': { name: 'Ash', rarity: 'common', description: 'The residue left after burning' },
+            'Plant+Wind': { name: 'Dandelion', rarity: 'uncommon', description: 'A flower whose seeds travel on the wind' },
+            'Storm+Water': { name: 'Hurricane', rarity: 'rare', description: 'A powerful tropical cyclone' },
+            'Storm+Fire': { name: 'Lightning Storm', rarity: 'epic', description: 'An electrical storm with fire and energy' },
+            'Stone+Fire': { name: 'Metal', rarity: 'uncommon', description: 'Mined and refined from ore' },
+            'Stone+Water': { name: 'Sand', rarity: 'common', description: 'Tiny particles of eroded rock' },
+            'Metal+Water': { name: 'Rust', rarity: 'common', description: 'Oxidized metal' },
+            'Metal+Fire': { name: 'Molten Metal', rarity: 'rare', description: 'Liquid metal at high temperatures' },
+            'Sand+Fire': { name: 'Glass', rarity: 'uncommon', description: 'Transparent material made from melted sand' },
+            'Sand+Wind': { name: 'Sandstorm', rarity: 'rare', description: 'A storm of blowing sand' },
+            'Phoenix+Fire': { name: 'Rebirth', rarity: 'legendary', description: 'The cycle of death and renewal' },
+            'Lightning Storm+Earth': { name: 'Volcano', rarity: 'epic', description: 'A mountain that erupts with lava' },
+            'Swamp+Life': { name: 'Frog', rarity: 'uncommon', description: 'An amphibian that lives in wetlands' },
+            'Frog+Prince': { name: 'Royal Frog', rarity: 'mythical', description: 'A frog with royal lineage' },
+            'Royal Frog+Castle': { name: 'Fairy Tale', rarity: 'mythical', description: 'A story of magic and wonder' },
+            'Steam+Energy': { name: 'Engine', rarity: 'rare', description: 'A machine that converts energy to motion' },
+            'Engine+Metal': { name: 'Car', rarity: 'uncommon', description: 'A wheeled vehicle for transportation' },
+            'Car+Car': { name: 'Traffic', rarity: 'common', description: 'Congestion on the roads' },
+            'Traffic+Patience': { name: 'Road Rage', rarity: 'epic', description: 'Frustration caused by traffic delays' },
+            'Earth+Life': { name: 'Human', rarity: 'rare', description: 'The most intelligent species on Earth' },
+            'Human+House': { name: 'Family', rarity: 'uncommon', description: 'A group of people living together' },
+            'Family+Love': { name: 'Baby', rarity: 'legendary', description: 'A new life born from love' },
+            'Baby+Time': { name: 'Child', rarity: 'uncommon', description: 'A young human being' },
+            'Child+Knowledge': { name: 'Student', rarity: 'uncommon', description: 'Someone who is learning' },
+            'Student+Wisdom': { name: 'Teacher', rarity: 'rare', description: 'One who imparts knowledge' },
+            'Teacher+School': { name: 'Education', rarity: 'uncommon', description: 'The process of learning' },
+            'Education+Technology': { name: 'Innovation', rarity: 'epic', description: 'New ideas and inventions' },
+            'Innovation+Future': { name: 'AI', rarity: 'legendary', description: 'Artificial Intelligence' },
+            'AI+Human': { name: 'Cyborg', rarity: 'mythical', description: 'A being with both organic and robotic parts' },
+            'Water+Stone': { name: 'River', rarity: 'common', description: 'A flowing body of water' },
+            'River+Time': { name: 'Canyon', rarity: 'rare', description: 'A deep gorge carved by water over time' },
+            'Canyon+Wind': { name: 'Echo', rarity: 'uncommon', description: 'Sound reflecting off canyon walls' },
+            'Echo+Music': { name: 'Concert', rarity: 'rare', description: 'A musical performance' },
+            'Concert+People': { name: 'Festival', rarity: 'uncommon', description: 'A celebration with music and crowds' },
+            'Festival+Fire': { name: 'Fireworks', rarity: 'epic', description: 'Colorful explosions in the sky' },
+            'Fireworks+Night': { name: 'Celebration', rarity: 'rare', description: 'A joyful event' },
+            'Celebration+Love': { name: 'Wedding', rarity: 'legendary', description: 'The union of two people' },
+            'Wedding+Time': { name: 'Anniversary', rarity: 'uncommon', description: 'A yearly celebration' },
+            'Plant+Time': { name: 'Tree', rarity: 'common', description: 'A tall plant with a woody stem' },
+            'Tree+Time': { name: 'Forest', rarity: 'uncommon', description: 'A large area covered with trees' },
+            'Forest+Magic': { name: 'Enchanted Forest', rarity: 'epic', description: 'A magical woodland full of wonders' },
+            'Enchanted Forest+Creature': { name: 'Unicorn', rarity: 'legendary', description: 'A mythical horse with a single horn' },
+            'Unicorn+Rainbow': { name: 'Magic', rarity: 'mythical', description: 'The power to manipulate reality' },
+            'Magic+Human': { name: 'Wizard', rarity: 'epic', description: 'A practitioner of magical arts' },
+            'Wizard+Knowledge': { name: 'Spellbook', rarity: 'rare', description: 'A book containing magical spells' },
+            'Spellbook+Fire': { name: 'Fireball', rarity: 'epic', description: 'A ball of magical fire' },
+            'Fireball+Water': { name: 'Steam Explosion', rarity: 'legendary', description: 'A violent release of steam energy' },
+            'Steam Explosion+Earth': { name: 'Geyser', rarity: 'rare', description: 'A hot spring that erupts periodically' },
+            'Geyser+Time': { name: 'Old Faithful', rarity: 'epic', description: 'A famously regular geyser' },
+            'Metal+Energy': { name: 'Magnet', rarity: 'uncommon', description: 'An object that produces a magnetic field' },
+            'Magnet+Metal': { name: 'Compass', rarity: 'rare', description: 'A device for finding direction' },
+            'Compass+Sea': { name: 'Navigation', rarity: 'uncommon', description: 'The art of finding your way' },
+            'Navigation+Stars': { name: 'Astronomy', rarity: 'epic', description: 'The study of celestial objects' },
+            'Astronomy+Telescope': { name: 'Discovery', rarity: 'legendary', description: 'Finding something new' },
+            'Discovery+Curiosity': { name: 'Science', rarity: 'epic', description: 'The pursuit of knowledge' },
+            'Science+Magic': { name: 'Alchemy', rarity: 'mythical', description: 'The medieval precursor to chemistry' },
+            'Alchemy+Gold': { name: 'Philosophers Stone', rarity: 'mythical', description: 'A legendary substance' }
+        };
+
+        // Achievements data
+        const achievements = [
+            { id: 'first_combination', name: 'First Combination', description: 'Combine your first two elements', icon: '🔮', reward: 10 },
+            { id: 'element_collector', name: 'Element Collector', description: 'Discover 10 unique elements', icon: '🧩', reward: 50 },
+            { id: 'master_crafter', name: 'Master Crafter', description: 'Make 50 combinations', icon: '⚒️', reward: 100 },
+            { id: 'rare_finder', name: 'Rare Finder', description: 'Discover a rare element', icon: '💎', reward: 75 },
+            { id: 'epic_creator', name: 'Epic Creator', description: 'Discover an epic element', icon: '🌟', reward: 150 },
+            { id: 'legendary_creator', name: 'Legendary Creator', description: 'Discover a legendary element', icon: '👑', reward: 300 },
+            { id: 'mythical_creator', name: 'Mythical Creator', description: 'Discover a mythical element', icon: '🌈', reward: 500 },
+            { id: 'completionist', name: 'Completionist', description: 'Discover all elements', icon: '🏆', reward: 1000 },
+            { id: 'recipe_master', name: 'Recipe Master', description: 'View 20 different element recipes', icon: '📖', reward: 150 },
+            { id: 'quick_crafter', name: 'Quick Crafter', description: 'Use quick craft 10 times', icon: '⚡', reward: 100 }
+        ];
+
+        // Daily challenges
+        const dailyChallenges = [
+            { description: 'Combine Fire and Water to create Steam', goal: 'Steam', reward: 50 },
+            { description: 'Create a rare element', goal: 'rare', reward: 75 },
+            { description: 'Make 5 combinations today', goal: 'combinations', count: 5, reward: 100 },
+            { description: 'Discover 3 new elements today', goal: 'discoveries', count: 3, reward: 120 },
+            { description: 'View 5 element recipes', goal: 'recipes_viewed', count: 5, reward: 80 }
+        ];
+
+        // Player data (no account needed)
+        let playerData = {
+            elements: baseElements.map(e => e.name),
+            combinations: 0,
+            score: 0,
+            level: 1,
+            xp: 0,
+            achievements: {},
+            history: [],
+            dailyChallenge: null,
+            sessionScore: 0,
+            recipesViewed: 0,
+            quickCraftsUsed: 0
+        };
+
+        // DOM elements
+        const userLevel = document.getElementById('user-level');
+        const userXp = document.getElementById('user-xp');
+        const nextLevelXp = document.getElementById('next-level-xp');
+        const elementsCount = document.getElementById('elements-count');
+        const combinationsCount = document.getElementById('combinations-count');
+        const userScore = document.getElementById('user-score');
+        const sessionScore = document.getElementById('session-score');
+        const userElementsContainer = document.getElementById('user-elements-container');
+        const allElementsContainer = document.getElementById('all-elements-container');
+        const combineBtn = document.getElementById('combine-btn');
+        const dropZone1 = document.getElementById('drop-zone-1');
+        const dropZone2 = document.getElementById('drop-zone-2');
+        const resultMessage = document.getElementById('result-message');
+        const newElement = document.getElementById('new-element');
+        const totalElements = document.getElementById('total-elements');
+        const userElementsStat = document.getElementById('user-elements');
+        const combinationsStat = document.getElementById('combinations');
+        const exportBtn = document.getElementById('export-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const saveBtn = document.getElementById('save-btn');
+        const loadBtn = document.getElementById('load-btn');
+        const recipeBookBtn = document.getElementById('recipe-book-btn');
+        const recipeBook = document.getElementById('recipe-book');
+        const recipeSearch = document.getElementById('recipe-search');
+        const recipeList = document.getElementById('recipe-list');
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        const elementModal = document.getElementById('element-modal');
+        const closeModal = document.getElementById('close-modal');
+        const elementInfo = document.getElementById('element-info');
+        const quickCraftContainer = document.getElementById('quick-craft-container');
+        const achievementsContainer = document.getElementById('achievements-container');
+        const challengeDescription = document.getElementById('challenge-description');
+        const challengeProgress = document.getElementById('challenge-progress');
+        const challengeReward = document.getElementById('challenge-reward');
+        const historyContainer = document.getElementById('history-container');
+
+        // Dragged elements
+        let draggedElement1 = null;
+        let draggedElement2 = null;
+
+        // Initialize the game
+        function initGame() {
+            // Load player data from localStorage if available
+            loadPlayerData();
+            
+            renderAllElements();
+            renderUserElements();
+            updateStats();
+            renderAchievements();
+            setupDailyChallenge();
+            renderHistory();
+            renderQuickCraft();
+            
+            // Set up event listeners
+            combineBtn.addEventListener('click', combineElements);
+            exportBtn.addEventListener('click', exportData);
+            resetBtn.addEventListener('click', resetProgress);
+            saveBtn.addEventListener('click', saveProgress);
+            loadBtn.addEventListener('click', loadProgress);
+            recipeBookBtn.addEventListener('click', toggleRecipeBook);
+            recipeSearch.addEventListener('input', filterRecipes);
+            closeModal.addEventListener('click', closeElementModal);
+            elementModal.addEventListener('click', (e) => {
+                if (e.target === elementModal) closeElementModal();
+            });
+            
+            // Category buttons
+            categoryBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    categoryBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    filterRecipes();
+                });
+            });
+            
+            // Set up drag and drop
+            setupDragAndDrop();
+            
+            // Set up X buttons for drop zones
+            setupClearButtons();
+        }
+
+        // Load player data from localStorage
+        function loadPlayerData() {
+            const savedData = localStorage.getItem('infiniteCraftPlayerData');
+            if (savedData) {
+                playerData = JSON.parse(savedData);
+            }
+        }
+
+        // Save player data to localStorage
+        function savePlayerData() {
+            localStorage.setItem('infiniteCraftPlayerData', JSON.stringify(playerData));
+        }
+
+        // Render all available elements
+        function renderAllElements() {
+            allElementsContainer.innerHTML = '';
+            const allElements = getAllElements();
+            
+            allElements.forEach(element => {
+                const elementDiv = createElementDiv(element, true);
+                allElementsContainer.appendChild(elementDiv);
+            });
+            
+            totalElements.textContent = allElements.length;
+        }
+
+        // Get all elements (base + discovered)
+        function getAllElements() {
+            const allElements = [...baseElements];
+            Object.values(combinations).forEach(element => {
+                if (!allElements.some(e => e.name === element.name)) {
+                    allElements.push(element);
+                }
+            });
+            return allElements.sort((a, b) => a.name.localeCompare(b.name));
+        }
+
+        // Create an element div with rarity badge
+        function createElementDiv(element, isViewOnly = false) {
+            const elementDiv = document.createElement('div');
+            
+            if (isViewOnly) {
+                elementDiv.className = `element ${element.rarity} view-only`;
+                elementDiv.addEventListener('click', () => {
+                    showElementInfo(element);
+                });
+            } else {
+                elementDiv.className = `element ${element.rarity} clickable`;
+                elementDiv.draggable = true;
+                
+                // Add drag functionality
+                elementDiv.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', element.name);
+                });
+                
+                // Add click functionality for your elements
+                elementDiv.addEventListener('click', () => {
+                    addElementToCraftingArea(element.name);
+                });
+            }
+            
+            elementDiv.textContent = element.name;
+            
+            // Add rarity badge
+            const rarityBadge = document.createElement('span');
+            rarityBadge.className = 'rarity-badge';
+            rarityBadge.textContent = element.rarity.charAt(0).toUpperCase();
+            elementDiv.appendChild(rarityBadge);
+            
+            return elementDiv;
+        }
+
+        // Add element to crafting area when clicked
+        function addElementToCraftingArea(elementName) {
+            if (!dropZone1.textContent || dropZone1.textContent === '+') {
+                dropZone1.textContent = elementName;
+                dropZone1.classList.add('has-element');
+                draggedElement1 = elementName;
+            } else if (!dropZone2.textContent || dropZone2.textContent === '+') {
+                dropZone2.textContent = elementName;
+                dropZone2.classList.add('has-element');
+                draggedElement2 = elementName;
+            } else {
+                // Both slots are full, replace the first one
+                dropZone1.textContent = elementName;
+                draggedElement1 = elementName;
+            }
+        }
+
+        // Set up X buttons for drop zones
+        function setupClearButtons() {
+            const clearButtons = document.querySelectorAll('.drop-zone .clear-btn');
+            
+            clearButtons.forEach((btn, index) => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const dropZone = index === 0 ? dropZone1 : dropZone2;
+                    dropZone.textContent = '+';
+                    dropZone.classList.remove('has-element');
+                    
+                    if (index === 0) {
+                        draggedElement1 = null;
+                    } else {
+                        draggedElement2 = null;
+                    }
+                });
+            });
+        }
+
+        // Render user's elements
+        function renderUserElements() {
+            userElementsContainer.innerHTML = '';
+            
+            playerData.elements.forEach(elementName => {
+                const element = getElementByName(elementName);
+                if (element) {
+                    const elementDiv = createElementDiv(element);
+                    userElementsContainer.appendChild(elementDiv);
+                }
+            });
+            
+            elementsCount.textContent = playerData.elements.length;
+            userElementsStat.textContent = playerData.elements.length;
+            combinationsStat.textContent = playerData.combinations;
+            userScore.textContent = playerData.score;
+            sessionScore.textContent = playerData.sessionScore;
+        }
+
+        // Get element by name
+        function getElementByName(name) {
+            const allElements = getAllElements();
+            return allElements.find(e => e.name === name);
+        }
+
+        // Get recipe for an element
+        function getRecipe(elementName) {
+            for (const [combo, result] of Object.entries(combinations)) {
+                if (result.name === elementName) {
+                    const [elem1, elem2] = combo.split('+');
+                    return { ingredients: [elem1, elem2], result };
+                }
+            }
+            return null;
+        }
+
+        // Show element information modal
+        function showElementInfo(element) {
+            const recipe = getRecipe(element.name);
+            const isDiscovered = playerData.elements.includes(element.name);
+            
+            elementInfo.innerHTML = `
+                <div class="element-info-name">${element.name}</div>
+                <div class="element-info-rarity ${element.rarity}">${element.rarity.toUpperCase()}</div>
+                <div class="element-info-description">${element.description}</div>
+                
+                ${isDiscovered ? '<div class="success message">You have discovered this element!</div>' : ''}
+                
+                ${recipe ? `
+                    <div class="element-info-recipe">
+                        <h3>Recipe</h3>
+                        <p>Combine these elements to create ${element.name}:</p>
+                        <div class="recipe-components">
+                            <div class="recipe-component ${getElementByName(recipe.ingredients[0]).rarity}">
+                                ${recipe.ingredients[0]}
+                            </div>
+                            <div>+</div>
+                            <div class="recipe-component ${getElementByName(recipe.ingredients[1]).rarity}">
+                                ${recipe.ingredients[1]}
+                            </div>
+                        </div>
+                        ${!isDiscovered ? `
+                            <button id="quick-craft-btn" style="width: auto; margin-top: 10px;">
+                                Quick Craft (Add to Crafting Area)
+                            </button>
+                        ` : ''}
+                    </div>
+                ` : `
+                    <div class="element-info-recipe">
+                        <p>This is a base element and cannot be crafted from other elements.</p>
+                    </div>
+                `}
+            `;
+            
+            // Add event listener for quick craft button if it exists
+            if (!isDiscovered && recipe) {
+                document.getElementById('quick-craft-btn').addEventListener('click', () => {
+                    quickCraft(recipe.ingredients[0], recipe.ingredients[1]);
+                    closeElementModal();
+                });
+            }
+            
+            // Track recipe view for achievements
+            if (!playerData.viewedRecipes) playerData.viewedRecipes = [];
+            if (!playerData.viewedRecipes.includes(element.name)) {
+                playerData.viewedRecipes.push(element.name);
+                playerData.recipesViewed = (playerData.recipesViewed || 0) + 1;
+                checkAchievements();
+                savePlayerData();
+            }
+            
+            elementModal.style.display = 'flex';
+        }
+
+        // Close element modal
+        function closeElementModal() {
+            elementModal.style.display = 'none';
+        }
+
+        // Quick craft - add elements to crafting area
+        function quickCraft(element1, element2) {
+            if (playerData.elements.includes(element1) && playerData.elements.includes(element2)) {
+                dropZone1.textContent = element1;
+                dropZone1.classList.add('has-element');
+                dropZone2.textContent = element2;
+                dropZone2.classList.add('has-element');
+                draggedElement1 = element1;
+                draggedElement2 = element2;
+                
+                playerData.quickCraftsUsed = (playerData.quickCraftsUsed || 0) + 1;
+                checkAchievements();
+                savePlayerData();
+                
+                showMessage(resultMessage, `Added ${element1} and ${element2} to crafting area!`, 'success');
+            } else {
+                const missing = [];
+                if (!playerData.elements.includes(element1)) missing.push(element1);
+                if (!playerData.elements.includes(element2)) missing.push(element2);
+                showMessage(resultMessage, `You need to discover ${missing.join(' and ')} first!`, 'error');
+            }
+        }
+
+        // Render quick craft section
+        function renderQuickCraft() {
+            quickCraftContainer.innerHTML = '';
+            
+            // Get recipes based on player's progress
+            const allRecipes = Object.entries(combinations)
+                .map(([combo, result]) => {
+                    const [elem1, elem2] = combo.split('+');
+                    return { elem1, elem2, result };
+                });
+            
+            // Sort recipes by complexity (based on ingredient rarity and whether they're discovered)
+            const sortedRecipes = allRecipes.sort((a, b) => {
+                const aComplexity = calculateRecipeComplexity(a);
+                const bComplexity = calculateRecipeComplexity(b);
+                return bComplexity - aComplexity;
+            });
+            
+            // Take the top 6 recipes
+            const selectedRecipes = sortedRecipes.slice(0, 6);
+            
+            selectedRecipes.forEach(recipe => {
+                const canCraft = playerData.elements.includes(recipe.elem1) && 
+                                playerData.elements.includes(recipe.elem2);
+                
+                const quickCraftItem = document.createElement('div');
+                quickCraftItem.className = `quick-craft-item ${!canCraft ? 'disabled' : ''}`;
+                quickCraftItem.innerHTML = `
+                    <div>${recipe.result.name}</div>
+                    <div class="recipe-components">
+                        <div class="recipe-component ${getElementByName(recipe.elem1).rarity}">
+                            ${recipe.elem1}
+                        </div>
+                        <div>+</div>
+                        <div class="recipe-component ${getElementByName(recipe.elem2).rarity}">
+                            ${recipe.elem2}
+                        </div>
+                    </div>
+                `;
+                
+                if (canCraft) {
+                    quickCraftItem.addEventListener('click', () => {
+                        quickCraft(recipe.elem1, recipe.elem2);
+                    });
+                }
+                
+                quickCraftContainer.appendChild(quickCraftItem);
+            });
+        }
+
+        // Calculate recipe complexity based on ingredient rarity and discovery status
+        function calculateRecipeComplexity(recipe) {
+            let complexity = 0;
+            
+            // Base complexity based on result rarity
+            const rarityValues = {
+                'common': 1,
+                'uncommon': 2,
+                'rare': 3,
+                'epic': 4,
+                'legendary': 5,
+                'mythical': 6
+            };
+            
+            complexity += rarityValues[recipe.result.rarity] || 1;
+            
+            // Bonus complexity if player has discovered the ingredients
+            if (playerData.elements.includes(recipe.elem1) && playerData.elements.includes(recipe.elem2)) {
+                complexity += 10;
+            }
+            
+            return complexity;
+        }
+
+        // Toggle recipe book visibility
+        function toggleRecipeBook() {
+            if (recipeBook.style.display === 'none') {
+                recipeBook.style.display = 'block';
+                renderRecipeBook();
+            } else {
+                recipeBook.style.display = 'none';
+            }
+        }
+
+        // Render recipe book
+        function renderRecipeBook() {
+            recipeList.innerHTML = '';
+            const allElements = getAllElements();
+            const searchTerm = recipeSearch.value.toLowerCase();
+            const activeCategory = document.querySelector('.category-btn.active').dataset.category;
+            
+            allElements.forEach(element => {
+                if (searchTerm && !element.name.toLowerCase().includes(searchTerm)) return;
+                if (activeCategory !== 'all' && element.rarity !== activeCategory) return;
+                
+                const recipe = getRecipe(element.name);
+                const isDiscovered = playerData.elements.includes(element.name);
+                
+                const recipeItem = document.createElement('div');
+                recipeItem.className = 'recipe-item';
+                recipeItem.innerHTML = `
+                    <div class="element ${element.rarity}" style="display: inline-block; padding: 5px 10px; margin-bottom: 10px;">
+                        ${element.name}
+                    </div>
+                    ${isDiscovered ? '<div style="color: #4CAF50; font-size: 0.8rem;">Discovered</div>' : ''}
+                    ${recipe ? `
+                        <div class="recipe-details">
+                            <div class="recipe-components">
+                                <div class="recipe-component ${getElementByName(recipe.ingredients[0]).rarity}">
+                                    ${recipe.ingredients[0]}
+                                </div>
+                                <div>+</div>
+                                <div class="recipe-component ${getElementByName(recipe.ingredients[1]).rarity}">
+                                    ${recipe.ingredients[1]}
+                                </div>
+                            </div>
+                        </div>
+                    ` : `
+                        <div class="recipe-details">
+                            <p>Base Element</p>
+                        </div>
+                    `}
+                `;
+                
+                recipeItem.addEventListener('click', () => {
+                    showElementInfo(element);
+                });
+                
+                recipeList.appendChild(recipeItem);
+            });
+        }
+
+        // Filter recipes based on search and category
+        function filterRecipes() {
+            renderRecipeBook();
+        }
+
+        // Set up drag and drop functionality
+        function setupDragAndDrop() {
+            // Drop zones
+            [dropZone1, dropZone2].forEach((zone, index) => {
+                zone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    zone.style.backgroundColor = 'rgba(255, 126, 95, 0.2)';
+                });
+                
+                zone.addEventListener('dragleave', () => {
+                    zone.style.backgroundColor = '';
+                });
+                
+                zone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    zone.style.backgroundColor = '';
+                    const element = e.dataTransfer.getData('text/plain');
+                    zone.textContent = element;
+                    zone.classList.add('has-element');
+                    
+                    if (index === 0) {
+                        draggedElement1 = element;
+                    } else {
+                        draggedElement2 = element;
+                    }
+                });
+            });
+        }
+
+        // Combine two elements
+        function combineElements() {
+            if (!draggedElement1 || !draggedElement2) {
+                showMessage(resultMessage, 'Please drag two elements to the boxes', 'error');
+                return;
+            }
+            
+            const combination1 = `${draggedElement1}+${draggedElement2}`;
+            const combination2 = `${draggedElement2}+${draggedElement1}`;
+            
+            let result = combinations[combination1] || combinations[combination2];
+            
+            if (result) {
+                // Successful combination
+                
+                // Add to user's elements if not already there
+                if (!playerData.elements.includes(result.name)) {
+                    playerData.elements.push(result.name);
+                    playerData.elements.sort();
+                    newElement.textContent = `New Element: ${result.name}!`;
+                    newElement.className = `new-element ${result.rarity}`;
+                    showMessage(resultMessage, `You discovered a new ${result.rarity} element!`, 'success');
+                    
+                    // Add to discovery history
+                    addToHistory(`Discovered ${result.name}`);
+                    
+                    // Check achievements
+                    checkAchievements();
+                    
+                    // Check daily challenge
+                    checkDailyChallenge(result.name);
+                    
+                    // Calculate XP based on rarity
+                    const xpGained = calculateXp(result.rarity);
+                    addXp(xpGained);
+                    
+                    // Create visual effect
+                    createDiscoveryEffect();
+                    
+                    // Update quick craft section
+                    renderQuickCraft();
+                } else {
+                    newElement.textContent = '';
+                    showMessage(resultMessage, `You created ${result.name} (already discovered)`, 'success');
+                }
+                
+                // Update combinations count and score
+                playerData.combinations++;
+                playerData.score += 1;
+                playerData.sessionScore += 1;
+                
+                // Save and update UI
+                savePlayerData();
+                renderUserElements();
+                renderAllElements();
+                updateStats();
+            } else {
+                // Failed combination
+                newElement.textContent = '';
+                showMessage(resultMessage, 'These elements cannot be combined', 'error');
+            }
+            
+            // Reset drop zones
+            dropZone1.textContent = '+';
+            dropZone2.textContent = '+';
+            dropZone1.classList.remove('has-element');
+            dropZone2.classList.remove('has-element');
+            draggedElement1 = null;
+            draggedElement2 = null;
+        }
+
+        // Calculate XP based on rarity
+        function calculateXp(rarity) {
+            const xpValues = {
+                'common': 5,
+                'uncommon': 10,
+                'rare': 25,
+                'epic': 50,
+                'legendary': 100,
+                'mythical': 200
+            };
+            return xpValues[rarity] || 5;
+        }
+
+        // Add XP to player
+        function addXp(amount) {
+            playerData.xp += amount;
+            
+            // Check for level up
+            const xpForNextLevel = getXpForLevel(playerData.level);
+            if (playerData.xp >= xpForNextLevel) {
+                playerData.level += 1;
+                playerData.xp = playerData.xp - xpForNextLevel;
+                showMessage(resultMessage, `Level Up! You are now level ${playerData.level}`, 'success');
+            }
+            
+            updatePlayerInfo();
+        }
+
+        // Get XP required for next level
+        function getXpForLevel(level) {
+            return level * 100;
+        }
+
+        // Check achievements
+        function checkAchievements() {
+            const achievements = playerData.achievements;
+            
+            // First combination achievement
+            if (playerData.combinations >= 1 && !achievements.first_combination) {
+                achievements.first_combination = true;
+                unlockAchievement('first_combination');
+            }
+            
+            // Element collector achievement
+            if (playerData.elements.length >= 10 && !achievements.element_collector) {
+                achievements.element_collector = true;
+                unlockAchievement('element_collector');
+            }
+            
+            // Master crafter achievement
+            if (playerData.combinations >= 50 && !achievements.master_crafter) {
+                achievements.master_crafter = true;
+                unlockAchievement('master_crafter');
+            }
+            
+            // Completionist achievement
+            if (playerData.elements.length >= getAllElements().length && !achievements.completionist) {
+                achievements.completionist = true;
+                unlockAchievement('completionist');
+            }
+            
+            // Recipe master achievement
+            if (playerData.recipesViewed >= 20 && !achievements.recipe_master) {
+                achievements.recipe_master = true;
+                unlockAchievement('recipe_master');
+            }
+            
+            // Quick crafter achievement
+            if (playerData.quickCraftsUsed >= 10 && !achievements.quick_crafter) {
+                achievements.quick_crafter = true;
+                unlockAchievement('quick_crafter');
+            }
+            
+            playerData.achievements = achievements;
+            savePlayerData();
+        }
+
+        // Unlock achievement
+        function unlockAchievement(achievementId) {
+            const achievement = achievements.find(a => a.id === achievementId);
+            if (achievement) {
+                showMessage(resultMessage, `Achievement Unlocked: ${achievement.name}! +${achievement.reward} XP`, 'success');
+                addXp(achievement.reward);
+                
+                // Add to history
+                addToHistory(`Unlocked achievement: ${achievement.name}`);
+                
+                // Update achievements display
+                renderAchievements();
+            }
+        }
+
+        // Render achievements
+        function renderAchievements() {
+            achievementsContainer.innerHTML = '';
+            
+            achievements.forEach(achievement => {
+                const achievementDiv = document.createElement('div');
+                achievementDiv.className = 'achievement';
+                
+                const achieved = playerData.achievements && playerData.achievements[achievement.id];
+                
+                if (!achieved) {
+                    achievementDiv.classList.add('locked');
+                }
+                
+                achievementDiv.innerHTML = `
+                    <div class="achievement-icon">${achievement.icon}</div>
+                    <h4>${achievement.name}</h4>
+                    <p>${achievement.description}</p>
+                    <p>Reward: ${achievement.reward} XP</p>
+                `;
+                
+                achievementsContainer.appendChild(achievementDiv);
+            });
+        }
+
+        // Setup daily challenge
+        function setupDailyChallenge() {
+            // For simplicity, we'll just use a fixed challenge
+            // In a real implementation, you would rotate challenges daily
+            const challenge = dailyChallenges[0];
+            challengeDescription.textContent = challenge.description;
+            challengeReward.textContent = `Reward: ${challenge.reward} XP`;
+            
+            playerData.dailyChallenge = playerData.dailyChallenge || {
+                description: challenge.description,
+                goal: challenge.goal,
+                progress: 0,
+                completed: false
+            };
+            
+            updateChallengeProgress();
+        }
+
+        // Check daily challenge
+        function checkDailyChallenge(elementName) {
+            const challenge = playerData.dailyChallenge;
+            
+            if (!challenge || challenge.completed) return;
+            
+            if (challenge.goal === elementName) {
+                challenge.progress = 1;
+                challenge.completed = true;
+                addXp(50); // Challenge reward
+                showMessage(resultMessage, 'Daily Challenge Completed! +50 XP', 'success');
+                addToHistory('Completed daily challenge');
+                updateChallengeProgress();
+            }
+        }
+
+        // Update challenge progress
+        function updateChallengeProgress() {
+            const challenge = playerData.dailyChallenge;
+            
+            if (challenge) {
+                const progressPercent = challenge.completed ? 100 : (challenge.progress / 1) * 100;
+                challengeProgress.style.width = `${progressPercent}%`;
+            }
+        }
+
+        // Add to discovery history
+        function addToHistory(text) {
+            playerData.history = playerData.history || [];
+            playerData.history.unshift({
+                text,
+                timestamp: new Date().toLocaleTimeString()
+            });
+            
+            // Keep only last 10 items
+            if (playerData.history.length > 10) {
+                playerData.history = playerData.history.slice(0, 10);
+            }
+            
+            savePlayerData();
+            renderHistory();
+        }
+
+        // Render history
+        function renderHistory() {
+            historyContainer.innerHTML = '';
+            
+            const history = playerData.history || [];
+            
+            history.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                historyItem.textContent = `[${item.timestamp}] ${item.text}`;
+                historyContainer.appendChild(historyItem);
+            });
+        }
+
+        // Export data
+        function exportData() {
+            const dataStr = JSON.stringify(playerData, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `infinite-craft-save.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showMessage(resultMessage, 'Data exported successfully!', 'success');
+        }
+
+        // Reset progress
+        function resetProgress() {
+            if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
+                playerData = {
+                    elements: baseElements.map(e => e.name),
+                    combinations: 0,
+                    score: 0,
+                    level: 1,
+                    xp: 0,
+                    achievements: {},
+                    history: [],
+                    dailyChallenge: null,
+                    sessionScore: 0,
+                    recipesViewed: 0,
+                    quickCraftsUsed: 0
+                };
+                
+                savePlayerData();
+                renderUserElements();
+                updateStats();
+                renderAchievements();
+                renderHistory();
+                renderQuickCraft();
+                showMessage(resultMessage, 'Progress reset successfully!', 'success');
+            }
+        }
+
+        // Save progress
+        function saveProgress() {
+            savePlayerData();
+            showMessage(resultMessage, 'Progress saved successfully!', 'success');
+        }
+
+        // Load progress
+        function loadProgress() {
+            loadPlayerData();
+            renderUserElements();
+            updateStats();
+            renderAchievements();
+            renderHistory();
+            renderQuickCraft();
+            showMessage(resultMessage, 'Progress loaded successfully!', 'success');
+        }
+
+        // Create visual effect for discovery
+        function createDiscoveryEffect() {
+            const effect = document.createElement('div');
+            effect.className = 'special-effects';
+            effect.style.left = '50%';
+            effect.style.top = '50%';
+            effect.style.transform = 'translate(-50%, -50%)';
+            effect.style.fontSize = '3rem';
+            effect.textContent = '✨';
+            
+            document.body.appendChild(effect);
+            
+            // Animate the effect
+            let opacity = 1;
+            let size = 1;
+            const animate = () => {
+                opacity -= 0.02;
+                size += 0.02;
+                effect.style.opacity = opacity;
+                effect.style.transform = `translate(-50%, -50%) scale(${size})`;
+                
+                if (opacity > 0) {
+                    requestAnimationFrame(animate);
+                } else {
+                    document.body.removeChild(effect);
+                }
+            };
+            
+            animate();
+        }
+
+        // Update player info display
+        function updatePlayerInfo() {
+            userLevel.textContent = playerData.level;
+            userXp.textContent = playerData.xp;
+            nextLevelXp.textContent = getXpForLevel(playerData.level);
+        }
+
+        // Update game statistics
+        function updateStats() {
+            const allElements = getAllElements();
+            totalElements.textContent = allElements.length;
+            userElementsStat.textContent = playerData.elements.length;
+            combinationsStat.textContent = playerData.combinations;
+            userScore.textContent = playerData.score;
+            sessionScore.textContent = playerData.sessionScore;
+            elementsCount.textContent = playerData.elements.length;
+            combinationsCount.textContent = playerData.combinations;
+        }
+
+        // Show message with styling
+        function showMessage(element, message, type) {
+            element.textContent = message;
+            element.className = `message ${type}`;
+            
+            // Clear message after 3 seconds
+            setTimeout(() => {
+                element.textContent = '';
+                element.className = 'message';
+            }, 3000);
+        }
+
+        // Initialize the game when page loads
+        window.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
